@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.forgeon.todo_app.mapper.MemberMapper">
+	
+	<select id="findForAuth" resultType="com.forgeon.todo_app.entity.Member">
+		
+		SELECT * FROM members 
+		
+		WHERE deleted_flg = FALSE AND username = #{username}
+	
+	</select>
+	
+	<select id="findAll" resultType="com.forgeon.todo_app.entity.Member">
+		
+		SELECT id, username, email, password, role, remarks 
+		
+		FROM members m
+		
+		<where>
+	        deleted_flg = FALSE
+			
+			<if test="id != null">
+				AND id = #{id}
+			</if>
+			
+			<if test="username != null and username != ''">
+				AND username LIKE CONCAT('%', #{username}, '%')
+			</if>
+			
+			<if test="email != null and email != ''">
+				AND email LIKE CONCAT('%', #{email}, '%')
+			</if>
+			
+			<if test="password != null and password != ''">
+				AND password LIKE CONCAT('%', #{password}, '%')
+			</if>
+			
+			<if test="role != null and role != ''">
+				AND CASE m.role
+					WHEN 'ADMIN' THEN '管理者'
+					WHEN 'TODO_ADMIN' THEN 'TODO管理者'
+					WHEN 'MEMBER' THEN 'メンバー'
+					ELSE m.role
+				END LIKE CONCAT('%', #{role}, '%')
+			</if>
+			
+			<if test="remarks != null and remarks != ''">
+				AND remarks LIKE CONCAT('%', #{remarks}, '%')
+			</if>
+		</where>
+		ORDER BY
+	    <choose>
+	    	<when test="sort == 'id'">m.id</when>
+	    	<when test="sort == 'username'">m.username</when>
+	    	<when test="sort == 'email'">m.email</when>
+	        <when test="sort == 'password'">m.password</when>
+	        <when test="sort == 'role'">m.role</when>
+	        <otherwise>m.remarks</otherwise>
+	    </choose>
+		<choose>
+			<when test="direction == 'desc'">DESC</when>
+			<otherwise>ASC</otherwise>
+		</choose>
+		
+	</select>
+	
+	<insert id="add" parameterType="com.forgeon.todo_app.entity.Member">
+		
+		INSERT INTO members (
+			
+			username,
+			email,
+			password,
+			role,
+			remarks,
+			created_by,
+			updated_by	)
+			
+		VALUES (
+			
+			#{username},
+			#{email},
+			#{password},
+			#{role},
+			#{remarks},
+			#{createdBy},
+			#{updatedBy}	)
+		
+	</insert>
+	
+	<select id="detail" resultType="com.forgeon.todo_app.entity.Member">
+		
+		SELECT * FROM members
+		
+		WHERE deleted_flg = FALSE AND id = #{id}
+	
+	</select>
+	
+	<update id="update" parameterType="com.forgeon.todo_app.entity.Member">
+	    UPDATE members
+	    <set>
+	        username = #{username},
+	        email = #{email},
+	        <if test="password != null">
+	            password = #{password},
+	        </if>
+	        role = #{role},
+	        remarks = #{remarks},
+	        updated_at = CURRENT_TIMESTAMP,
+	        updated_by = #{updatedBy}
+	    </set>
+	    WHERE id = #{id} AND deleted_flg = FALSE
+	</update>
+	
+	<update id="delete">
+		UPDATE members
+		SET
+			deleted_at = CURRENT_TIMESTAMP,
+			deleted_by = #{currentUsername},
+			deleted_flg = TRUE
+		WHERE
+			id = #{id}
+			AND deleted_flg = FALSE
+	</update>
+	
+</mapper>

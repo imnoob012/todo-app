@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>メニュー</title>
+		<link rel="stylesheet" th:href="@{/css/menu.css}">
+	</head>
+	<body>
+		<div th:replace="~{common/fragments :: header-fragment}"></div>
+		
+		<main class="menu-container">
+				
+				<a th:href="@{/members}" class="menu-card">
+					<h3>メンバー一覧</h3>
+					<span>Member List</span>
+				</a>
+				
+				<a th:href="@{/todos}" class="menu-card">
+					<h3>Todo一覧</h3>
+					<span>Task ManageMent</span>
+				</a>
+				
+		</main>
+		
+		<div th:replace="~{common/fragments :: footer-fragment}"></div>
+	</body>
+</html>

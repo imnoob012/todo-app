@@ -1,0 +1,90 @@
+main h2 {
+    max-width: 640px;
+    margin: 30px auto;
+    border-bottom: 1px solid #000;
+}
+
+form {
+    max-width: 600px;
+    margin: 40px auto;
+}
+
+.input-item {
+    margin-bottom: 30px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+input, select, textarea {
+    width: 100%;
+    background: #fff;
+    border-radius: 0;    /* 角丸排除 */
+    height: 45px;
+}
+
+textarea {
+    height: auto;
+    padding: 10px;
+}
+
+select {
+    cursor: pointer;
+}
+
+.input-items-submit {
+    margin-top: 40px;
+    padding-top: 30px;
+    text-align: center;
+}
+
+.add-btn {
+    width: 240px;
+}
+
+.error-message {
+    display: block;
+    margin-top: 5px;
+    font-weight: bold;
+    font-size: 0.85rem;
+    text-decoration: underline;
+}
+
+.required {
+	color: red;
+}
+
+/* todoフォームのスタイル */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px 25px;
+    padding-top: 5px;
+    border: 1px solid black;
+    padding: 15px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: auto;
+    height: 20px;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.checkbox-item label {
+    display: inline;
+    margin-bottom: 0;
+    font-weight: normal;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
