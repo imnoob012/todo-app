@@ -20,6 +20,7 @@ public class MemberForm {
 	private String username;
 	
 	@NotBlank(message="メールアドレスは必須です", groups = {Add.class, Update.class})
+	@Size(max=50, message="メールアドレスは50文字以内で入力してください", groups = {Add.class, Update.class})
 	@Email(message="正しいメールアドレス形式で入力してください", groups = {Add.class, Update.class})
 	private String email;
 	

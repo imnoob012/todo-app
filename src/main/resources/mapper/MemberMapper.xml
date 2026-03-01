@@ -52,12 +52,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</where>
 		ORDER BY
 	    <choose>
-	    	<when test="sort == 'id'">m.id</when>
 	    	<when test="sort == 'username'">m.username</when>
 	    	<when test="sort == 'email'">m.email</when>
 	        <when test="sort == 'password'">m.password</when>
 	        <when test="sort == 'role'">m.role</when>
-	        <otherwise>m.remarks</otherwise>
+	    	<when test="sort == 'remarks'">m.remarks</when>
+	        <otherwise>m.id</otherwise>
 	    </choose>
 		<choose>
 			<when test="direction == 'desc'">DESC</when>

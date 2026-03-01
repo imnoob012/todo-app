@@ -97,14 +97,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	    
 	    ORDER BY
 	    <choose>
-	    	<when test="sort == 'id'">t.id</when>
 	    	<when test="sort == 'title'">t.title</when>
 	    	<when test="sort == 'assignee'">m.username</when>
 	        <when test="sort == 'priority'">t.priority</when>
 	        <when test="sort == 'dueDate'">t.due_date</when>
 	        <when test="sort == 'classification'">t.classification</when>
 	        <when test="sort == 'description'">t.description</when>
-	        <otherwise>t.due_date</otherwise>
+	        <otherwise>t.id</otherwise>
 	    </choose>
 		<choose>
 			<when test="direction == 'desc'">DESC</when>
