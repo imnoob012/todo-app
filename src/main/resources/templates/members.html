@@ -5,9 +5,9 @@
 		<meta charset="UTF-8">
 		<title>メンバー一覧</title>
 		<link rel="stylesheet" th:href="@{/css/members.css}">
-		<script th:src="@{/js/main.js}" defer></script>
+		<script th:src="@{/js/member-list.js}" defer></script>
 	</head>
-	<body>
+	<body th:attr="data-is-admin=${#authorization.expression('hasAuthority(''ADMIN'')')}">
 		<div th:replace="~{common/fragments :: header-fragment}"></div>
 		
 		<main>			
@@ -17,29 +17,12 @@
 			</div>
 			<div class="search-area">
 			    <div class="search-grid">        
-			        <form th:action="@{/members}" method="get" th:object="${memberSearchForm}" class="search-item">
-			            <input type="text" th:field="*{id}" placeholder="ID">
-					</form>
-
-			        <form th:action="@{/members}" method="get" th:object="${memberSearchForm}" class="search-item">
-			            <input type="text" th:field="*{username}" placeholder="名前">
-			        </form>
-
-			        <form th:action="@{/members}" method="get" th:object="${memberSearchForm}" class="search-item">
-			            <input type="text" th:field="*{email}" placeholder="メールアドレス">
-			        </form>
-
-			        <form th:action="@{/members}" method="get" th:object="${memberSearchForm}" class="search-item">
-			            <input type="text" th:field="*{password}" placeholder="パスワード">
-			        </form>
-
-			        <form th:action="@{/members}" method="get" th:object="${memberSearchForm}" class="search-item">
-			            <input type="text" th:field="*{role}" placeholder="権限">
-			        </form>
-
-			        <form th:action="@{/members}" method="get" th:object="${memberSearchForm}" class="search-item">
-			            <input type="text" th:field="*{remarks}" placeholder="備考">
-			        </form>
+			        <input type="text" class="search-input" data-field="id" placeholder="ID">
+			        <input type="text" class="search-input" data-field="username" placeholder="名前">
+			        <input type="text" class="search-input" data-field="email" placeholder="メールアドレス">
+			        <input type="text" class="search-input" data-field="password" placeholder="パスワード">
+			        <input type="text" class="search-input" data-field="role" placeholder="権限">
+			        <input type="text" class="search-input" data-field="remarks" placeholder="備考">
 			    </div>
 			</div>
 			<table>
@@ -53,7 +36,7 @@
 						<th data-sort="remarks">備考</th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody id="member-table-body">
 					<tr th:each="member : ${members}">
 						<td>
 							<a th:href="@{/members/{id}(id=${member.id})}" th:text="${#numbers.formatInteger(member.id, 10)}">1</a>

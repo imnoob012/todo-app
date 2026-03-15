@@ -50,6 +50,7 @@ CREATE TABLE todo_assignments (
     deleted_by VARCHAR(50), -- 削除者
     deleted_flg BOOLEAN NOT NULL DEFAULT FALSE, -- 削除フラグ
     
+    UNIQUE (member_id, todo_id),
     FOREIGN KEY(todo_id) REFERENCES todos(id),
    	FOREIGN KEY(member_id) REFERENCES members(id)
 );

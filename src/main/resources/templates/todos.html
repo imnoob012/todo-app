@@ -5,7 +5,7 @@
 		<meta charset="UTF-8">
 		<title>Todo一覧</title>
 		<link rel="stylesheet" th:href="@{/css/todos.css}">
-		<script th:src="@{/js/main.js}" defer></script>
+		<script th:src="@{/js/todo-list.js}" defer></script>
 	</head>
 	<body>
 		<div th:replace="~{common/fragments :: header-fragment}"></div>
@@ -24,33 +24,13 @@
 		    </div>
 			<div class="search-area">
 			    <div class="search-grid">        
-			        <form th:action="@{/todos}" method="get" th:object="${todoSearchForm}" class="search-item">
-			            <input type="text" th:field="*{id}" placeholder="ID">
-					</form>
-
-			        <form th:action="@{/todos}" method="get" th:object="${todoSearchForm}" class="search-item">
-			            <input type="text" th:field="*{title}" placeholder="TODO名">
-			        </form>
-
-			        <form th:action="@{/todos}" method="get" th:object="${todoSearchForm}" class="search-item">
-			            <input type="text" th:field="*{assignee}" placeholder="担当者">
-			        </form>
-
-			        <form th:action="@{/todos}" method="get" th:object="${todoSearchForm}" class="search-item">
-			            <input type="text" th:field="*{priority}" placeholder="優先度">
-			        </form>
-
-			        <form th:action="@{/todos}" method="get" th:object="${todoSearchForm}" class="search-item">
-			            <input type="text" th:field="*{dueDate}" placeholder="期限">
-			        </form>
-
-			        <form th:action="@{/todos}" method="get" th:object="${todoSearchForm}" class="search-item">
-			            <input type="text" th:field="*{classification}" placeholder="分類">
-			        </form>
-					
-					<form th:action="@{/todos}" method="get" th:object="${todoSearchForm}" class="search-item">
-			            <input type="text" th:field="*{description}" placeholder="内容">
-			        </form>
+			        <input type="text" class="search-input" data-field="id" placeholder="ID">
+			        <input type="text" class="search-input" data-field="title" placeholder="TODO名">
+			        <input type="text" class="search-input" data-field="assignee" placeholder="担当者">
+			        <input type="text" class="search-input" data-field="priority" placeholder="優先度">
+			        <input type="text" class="search-input" data-field="dueDate" placeholder="期限">
+			        <input type="text" class="search-input" data-field="classification" placeholder="分類">
+			        <input type="text" class="search-input" data-field="description" placeholder="内容">
 			    </div>
 			</div>
 			<table>
@@ -67,7 +47,7 @@
 					</tr>
 				</thead>
 				
-				<tbody>
+				<tbody id="todo-table-body">
 					<tr th:each="todo : ${todos}">
 						<td>
 							<a th:href="@{/todos/{id}(id=${todo.id})}" th:text="${#numbers.formatInteger(todo.id, 10)}">1</a>

@@ -4,8 +4,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import java.util.Arrays;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 @Getter
 @RequiredArgsConstructor
+@JsonFormat(shape = JsonFormat.Shape.OBJECT) // EnumをJson形式に変換（シリアライズ）される際の出力形式できるようにする
 public enum Priority {
 	
 	HIGH(1, "高"),
@@ -25,4 +28,6 @@ public enum Priority {
             .findFirst()
             .orElse(null);
     }
+	
+	// JSON出力: {"id": 1, "label": "高"}
 }

@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.forgeon.todo_app.dto.MemberResponseDto;
 import com.forgeon.todo_app.dto.TodoResponseDto;
@@ -36,14 +37,17 @@ public class TodoViewController {
 	private final MemberService memberService;
 	
 	@GetMapping("/todos")
-	String todos(Model model, TodoSearchForm todoSearchForm) {
-		List<TodoResponseDto> todoList = todoService.findAll(todoSearchForm);
+	String todos(Model model, @RequestParam(required = false) Integer assigneeId) {
+		TodoSearchForm form = new TodoSearchForm();
+		form.setAssigneeId(assigneeId);
+		List<TodoResponseDto> todoList = todoService.findAll(form);
 		model.addAttribute("todos", todoList);
 		
-		if (todoSearchForm.getAssigneeId() != null) {
-			MemberResponseDto assignee = memberService.detail(todoSearchForm.getAssigneeId());
+		if (assigneeId != null) {
+			MemberResponseDto assignee = memberService.detail(assigneeId);
 			model.addAttribute("assignee", assignee);
 		}
+		 
 		return "todos";
 	}
 	

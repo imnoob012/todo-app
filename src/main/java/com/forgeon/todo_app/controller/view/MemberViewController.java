@@ -32,10 +32,9 @@ public class MemberViewController {
 	private final PasswordEncoder passwordEncoder;
 	
 	@GetMapping("/members")
-	String members(Model model, MemberSearchForm memberSearchForm) {
+	String members(Model model) {
 		
-		model.addAttribute("members", memberService.findAll(memberSearchForm));
-		model.addAttribute("memberSearchForm", memberSearchForm);
+		model.addAttribute("members", memberService.findAll(new MemberSearchForm()));
 		return "members";
 	}
 	
