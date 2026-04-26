@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.forgeon.todo_app.mapper.TodoMapper">
+	
+	<resultMap id="TodoResultMap" type="com.forgeon.todo_app.entity.Todo">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="priority" column="priority" />
+        <result property="dueDate" column="due_date" />
+        <result property="classification" column="classification" />
+        <result property="description" column="description" />
+        <collection property="assignees" ofType="com.forgeon.todo_app.entity.Member">
+            <id property="id" column="member_id" />
+            <result property="username" column="username" />
+        </collection>
+    </resultMap>
+
+    <select id="findAll" resultMap="TodoResultMap">
+        SELECT 
+            t.id,
+            t.title,
+            t.priority,
+            t.due_date,
+            t.classification,
+            t.description,
+            -- 担当者テーブル(ta) と メンバーテーブル(m) を結合
+            m.id AS member_id,
+            m.username AS username
+        FROM 
+            todos t
+
+        LEFT JOIN todo_assignments ta ON t.id = ta.todo_id AND ta.deleted_flg = FALSE
+
+        LEFT JOIN members m ON ta.member_id = m.id
+       
+        WHERE t.deleted_flg = FALSE
+        
+        <if test="assigneeId != null">
+        	AND EXISTS (
+				SELECT 1 
+				FROM todo_assignments sub_ta
+				WHERE sub_ta.todo_id = t.id
+				AND sub_ta.member_id = #{assigneeId}
+				AND sub_ta.deleted_flg = FALSE
+			)
+        </if>
+        
+        <if test="id != null">
+	        AND t.id = #{id}
+	    </if>
+	
+	    <if test="title != null and title != ''">
+	        AND t.title LIKE CONCAT('%', #{title}, '%')
+	    </if>
+	    
+	    <if test="assignee != null and assignee != ''">
+	        AND EXISTS (
+	            SELECT 1 
+	            FROM todo_assignments sub_ta
+	            INNER JOIN members sub_m ON sub_ta.member_id = sub_m.id
+	            WHERE sub_ta.todo_id = t.id
+	              AND sub_ta.deleted_flg = FALSE
+	              AND sub_m.username LIKE CONCAT('%', #{assignee}, '%')
+	        )
+	    </if>
+	
+	    <if test="priority != null and priority != ''">
+	        AND CASE t.priority
+	            WHEN 1 THEN '高'
+	            WHEN 2 THEN '中'
+	            WHEN 3 THEN '低'
+	            ELSE CAST(t.priority AS VARCHAR)
+	        END LIKE CONCAT('%', #{priority}, '%')
+	    </if>
+	
+	    <if test="dueDate != null and dueDate != ''">
+	        AND CAST(t.due_date AS VARCHAR) LIKE CONCAT('%', #{dueDate}, '%')
+	    </if>
+	
+	    <if test="classification != null and classification != ''">
+	        AND CASE t.classification
+	            WHEN 'FEATURE' THEN '機能開発'
+	            WHEN 'BUG' THEN 'バグ修正'
+	            WHEN 'REFACTOR' THEN 'リファクタ'
+	            WHEN 'TEST' THEN 'テスト'
+	            WHEN 'DOCS' THEN 'ドキュメント'
+	            WHEN 'OTHER' THEN 'その他'
+	            ELSE t.classification
+	        END LIKE CONCAT('%', #{classification}, '%')
+	    </if>
+	
+	    <if test="description != null and description != ''">
+	        AND t.description LIKE CONCAT('%', #{description}, '%')
+	    </if>
+	    
+	    ORDER BY
+	    <choose>
+	    	<when test="sort == 'title'">t.title</when>
+	    	<when test="sort == 'assignee'">m.username</when>
+	        <when test="sort == 'priority'">t.priority</when>
+	        <when test="sort == 'dueDate'">t.due_date</when>
+	        <when test="sort == 'classification'">t.classification</when>
+	        <when test="sort == 'description'">t.description</when>
+	        <otherwise>t.id</otherwise>
+	    </choose>
+		<choose>
+			<when test="direction == 'desc'">DESC</when>
+			<otherwise>ASC</otherwise>
+		</choose>
+    </select>
+    
+    <select id="detail" resultMap="TodoResultMap">
+        SELECT 
+            t.id,
+            t.title,
+            t.priority,
+            t.due_date,
+            t.classification,
+            t.description,
+            -- 担当者テーブル(ta) と メンバーテーブル(m) を結合
+            m.id AS member_id,
+            m.username AS username
+            
+        FROM 
+            todos t
+
+        LEFT JOIN todo_assignments ta ON t.id = ta.todo_id AND ta.deleted_flg = FALSE
+
+        LEFT JOIN members m ON ta.member_id = m.id
+       
+        WHERE t.deleted_flg = FALSE AND t.id = #{id}
+    </select>
+    
+	<insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.forgeon.todo_app.entity.Todo">
+		INSERT INTO todos (
+			title,
+			priority,
+			due_date,
+			classification,
+			description,
+			created_by,
+			created_at,
+			updated_by,
+			updated_at
+		)
+		VALUES (
+			#{title},
+			#{priority},
+			#{dueDate},
+			#{classification},
+			#{description},
+			#{createdBy},
+			CURRENT_TIMESTAMP,
+			#{updatedBy},
+			CURRENT_TIMESTAMP
+		)
+	</insert>
+	
+	<insert id="insertAssignment">
+		INSERT INTO todo_assignments (
+			member_id,
+			todo_id,
+			created_by,
+			updated_by
+		) VALUES (
+			#{memberId},
+			#{todoId},
+			#{createdBy},
+			#{createdBy}
+		)
+	</insert>
+	
+	<update id="update" parameterType="com.forgeon.todo_app.entity.Todo">
+		UPDATE todos
+		<set>
+			title = #{title},
+			priority = #{priority},
+			due_date = #{dueDate},
+			classification = #{classification},
+			description = #{description},
+			updated_at = CURRENT_TIMESTAMP,
+			updated_by = #{updatedBy}
+		</set>
+		WHERE id = #{id} AND deleted_flg = FALSE
+	</update>
+	
+	<update id="logicalDeleteAllAssignees">
+		UPDATE todo_assignments
+		SET
+			deleted_at = CURRENT_TIMESTAMP,
+			deleted_by = #{updatedBy},
+			deleted_flg = TRUE
+		WHERE todo_id = #{todoId} AND deleted_flg = FALSE
+	</update>
+	
+	<update id="reactivateAssignee">
+		UPDATE todo_assignments
+		SET
+			deleted_at = NULL,
+			deleted_by = NULL,
+			deleted_flg = FALSE,
+			updated_by = #{updatedBy},
+			updated_at = CURRENT_TIMESTAMP
+		WHERE todo_id = #{todoId} AND member_id = #{assigneeId}
+		AND deleted_flg = TRUE
+	</update>
+	
+	<update id="delete">
+		UPDATE todos
+		SET
+			deleted_at = CURRENT_TIMESTAMP,
+			deleted_by = #{currentUsername},
+			deleted_flg = TRUE
+		WHERE id = #{id} AND deleted_flg = FALSE
+	</update>
+	
+</mapper>

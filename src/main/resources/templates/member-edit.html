@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>メンバー編集</title>
+		<link rel="stylesheet" th:href="@{/css/form.css}">
+	</head>
+	<body>
+		
+		<div th:replace="~{common/fragments :: header-fragment}"></div>
+		
+		<main>
+			
+			<h2>メンバー編集</h2>
+			
+			<form method="POST" th:action="@{/members/update/{id}(id=${id})}" th:object="${memberForm}">
+				
+				<div class="input-class" style="margin-bottom: 5px; font-weight: bold;">
+					ID：<span th:text="${#numbers.formatInteger(id, 10)}">ID</span>
+				</div>
+						
+				<div class="input-item">
+					<label for="username">ユーザー名 <span class="required">*</span></label>
+					<input type="text" id="username" th:field="*{username}" th:value="*{username}" placeholder="例：山田太郎">
+					<div class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+				</div>
+				
+				<div class="input-item">
+					<label for="email">メールアドレス <span class="required">*</span></label>
+					<input type="email" id="email" th:field="*{email}" placeholder="例：aiueo@example.com">
+					<div class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+				</div>
+				
+				<div class="input-item">
+					<label for="password">パスワード <span class="required">*</span></label>
+					<input type="password" id="password" th:field="*{password}">
+					<div class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+				</div>
+				
+				<div class="input-item">
+					<label for="role">権限 <span class="required">*</span></label>
+					<select th:field="*{role}" sec:authorize="hasAuthority('ADMIN')">
+						<option value="">選択してください</option>
+						<option th:each="item : ${T(com.forgeon.todo_app.constant.Role).values()}"
+								th:value="${item.name}"
+								th:text="${item.label}">
+						</option>
+					</select>
+					
+					<th:block sec:authorize="!hasAuthority('ADMIN')">
+						<select th:field="*{role}" disabled>
+							<option value="">選択してください</option>
+							<option th:each="item : ${T(com.forgeon.todo_app.constant.Role).values()}"
+									th:value="${item.name}"
+									th:text="${item.label}">
+							</option>
+						</select>
+						<input type="hidden" th:field="*{role}" />
+					</th:block>
+					<div class="error-message" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></div>
+				</div>
+				
+				<div class="input-item">
+					<label for="remarks">備考 <span class="required">*</span></label>
+					<textarea id="remarks" th:field="*{remarks}" rows="4"></textarea>
+					<div class="error-message" th:if="${#fields.hasErrors('remarks')}" th:errors="*{remarks}"></div>
+				</div>
+				
+				<div class="input-items-submit">
+					<button type="submit" class="add-btn">登 録</button>
+				</div>
+								
+			</form>
+		</main>
+		
+		<div th:replace="~{common/fragments :: footer-fragment}"></div>
+		
+	</body>
+</html>

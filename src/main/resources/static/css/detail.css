@@ -1,0 +1,123 @@
+body {
+    background-color: #fff;
+    color: #333;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+}
+
+main {
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 40px;
+    border: 1px solid black;
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    row-gap: 24px;
+    align-items: baseline;
+}
+
+h2 {
+    grid-column: 1 / -1;
+    margin: 0 0 30px 0;
+    padding-bottom: 15px;
+    font-size: 1.4rem;
+    border-bottom: 1px solid black;
+}
+
+.detail-item-label {
+    font-weight: bold;
+    color: #000;
+    font-size: 0.95rem;
+}
+
+.detail-item-value {
+    color: #333;
+    font-size: 1rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.operations {
+    grid-column: 1 / -1;
+    margin-top: 40px;
+    padding-top: 25px;
+    border-top: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.operations a,
+.operations button {
+    display: inline-block;
+    background-color: transparent;
+    color: #333;
+    border: 1px solid #333;
+    padding: 10px 40px;
+    font-size: 1rem;
+    font-family: inherit;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.operations a:hover,
+.operations button:hover {
+    background-color: #333;
+    color: #fff;
+}
+
+.operations form {
+    margin: 0;
+}
+
+.assignees {
+    white-space: normal; 
+}
+
+.assignees a {
+    margin-left: 0;
+    margin-right: 5px;
+    text-decoration: underline;
+    display: inline-block;
+}
+
+@media (max-width: 600px) {
+    main {
+        margin: 0;
+        padding: 20px;
+        border: none;
+        grid-template-columns: 1fr;
+    }
+    
+    h2 {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+    }
+    
+    .detail-item-label {
+        margin-bottom: 5px;
+    }
+    
+    .detail-item-value {
+        margin-bottom: 25px;
+    }
+	
+	.operations {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .operations a,
+    .operations button {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    .operations form {
+        width: 100%;
+    }
+}

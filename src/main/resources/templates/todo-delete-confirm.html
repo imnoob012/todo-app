@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>削除確認</title>
+		<link rel="stylesheet" th:href="@{/css/menu.css}">
+	</head>
+	<body>
+		<div th:replace="~{common/fragments :: header-fragment}"></div>
+		
+		<main class="menu-container">
+				
+				<form th:action="@{/todos/delete/{id}(id=${id})}" method="post">
+					<button type="submit" class="menu-card">
+						TODOID:<span th:text="${#numbers.formatInteger(id, 10)}"></span>を削除						
+					</button>
+				</form>
+				
+				<a th:href="@{/todos}" class="menu-card">
+					<span>削除しない</span>
+				</a>
+				
+		</main>
+		
+		<div th:replace="~{common/fragments :: footer-fragment}"></div>
+	</body>
+</html>
