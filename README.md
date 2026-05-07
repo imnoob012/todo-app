@@ -2,7 +2,7 @@
 
 > チーム内のメンバー管理とタスク管理を一元化する Web アプリケーション
 > 
-> 詳細は/docsにあります。
+> 詳細な設計資料は/docsに置いています。
 
 ![Java](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.1-6DB33F?logo=springboot&logoColor=white)
