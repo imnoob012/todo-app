@@ -1,0 +1,58 @@
+name: "🐛 バグ報告"
+description: "バグを報告する"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        バグの報告ありがとうございます。以下の項目を記入してください。
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "バグの概要"
+      description: "どのような問題が発生していますか？"
+      placeholder: "ログインボタンをクリックしても反応しない"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "再現手順"
+      description: "バグを再現する手順を記載してください"
+      value: |
+        1. '...' に移動する
+        2. '...' をクリックする
+        3. '...' までスクロールする
+        4. エラーが発生する
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "期待する動作"
+      description: "本来どのように動作すべきですか？"
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: "スクリーンショット"
+      description: "問題を説明するスクリーンショットがあれば添付してください"
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: "環境"
+      options:
+        - Chrome (最新)
+        - Firefox (最新)
+        - Safari (最新)
+        - Edge (最新)
+        - モバイル (iOS)
+        - モバイル (Android)
+    validations:
+      required: true

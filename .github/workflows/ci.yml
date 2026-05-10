@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+# 同じブランチで新しいプッシュがあったら、古いワークフローをキャンセル
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: todo_app_db
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: root
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: JDK 21 をセットアップ
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Gradle Wrapper に実行権限を付与
+        run: chmod +x gradlew
+
+      - name: プロジェクトをビルド
+        run: ./gradlew build -x test
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/todo_app_db
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: root
+
+      - name: テストを実行
+        run: ./gradlew test
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/todo_app_db
+          SPRING_DATASOURCE_USERNAME: root
+          SPRING_DATASOURCE_PASSWORD: root

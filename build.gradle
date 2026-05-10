@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.forgeon'
 version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
+description = 'メンバー管理とTODOタスク管理を一元化するWebアプリケーション'
 
 java {
 	toolchain {
@@ -37,6 +37,7 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	implementation 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-flyway-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-starter-thymeleaf-test'
