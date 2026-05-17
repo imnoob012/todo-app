@@ -10,6 +10,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="priority" column="priority" />
         <result property="dueDate" column="due_date" />
         <result property="classification" column="classification" />
+        <result property="status" column="status" />
+        <result property="completedAt" column="completed_at" />
         <result property="description" column="description" />
         <collection property="assignees" ofType="com.forgeon.todo_app.entity.Member">
             <id property="id" column="member_id" />
@@ -24,6 +26,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             t.priority,
             t.due_date,
             t.classification,
+            t.status,
+            t.completed_at,
             t.description,
             -- 担当者テーブル(ta) と メンバーテーブル(m) を結合
             m.id AS member_id,
@@ -90,6 +94,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	            ELSE t.classification
 	        END LIKE CONCAT('%', #{classification}, '%')
 	    </if>
+
+	    <if test="status != null and status != ''">
+	        AND CASE t.status
+	            WHEN 'TODO' THEN '未着手'
+	            WHEN 'IN_PROGRESS' THEN '進行中'
+	            WHEN 'DONE' THEN '完了'
+	            ELSE t.status
+	        END LIKE CONCAT('%', #{status}, '%')
+	    </if>
 	
 	    <if test="description != null and description != ''">
 	        AND t.description LIKE CONCAT('%', #{description}, '%')
@@ -102,6 +115,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	        <when test="sort == 'priority'">t.priority</when>
 	        <when test="sort == 'dueDate'">t.due_date</when>
 	        <when test="sort == 'classification'">t.classification</when>
+	        <when test="sort == 'status'">t.status</when>
 	        <when test="sort == 'description'">t.description</when>
 	        <otherwise>t.id</otherwise>
 	    </choose>
@@ -118,6 +132,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             t.priority,
             t.due_date,
             t.classification,
+            t.status,
+            t.completed_at,
             t.description,
             -- 担当者テーブル(ta) と メンバーテーブル(m) を結合
             m.id AS member_id,
@@ -139,6 +155,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			priority,
 			due_date,
 			classification,
+			status,
+			completed_at,
 			description,
 			created_by,
 			created_at,
@@ -150,6 +168,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			#{priority},
 			#{dueDate},
 			#{classification},
+			#{status},
+			#{completedAt},
 			#{description},
 			#{createdBy},
 			CURRENT_TIMESTAMP,
@@ -179,6 +199,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			priority = #{priority},
 			due_date = #{dueDate},
 			classification = #{classification},
+			status = #{status},
+			completed_at = #{completedAt},
 			description = #{description},
 			updated_at = CURRENT_TIMESTAMP,
 			updated_by = #{updatedBy}
@@ -215,5 +237,72 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			deleted_flg = TRUE
 		WHERE id = #{id} AND deleted_flg = FALSE
 	</update>
+
+	<select id="findComments" resultType="com.forgeon.todo_app.entity.TodoComment">
+		SELECT
+			tc.id,
+			tc.todo_id,
+			tc.member_id,
+			m.username,
+			tc.comment_text,
+			tc.created_at,
+			tc.created_by,
+			tc.updated_at,
+			tc.updated_by,
+			tc.deleted_at,
+			tc.deleted_by,
+			tc.deleted_flg
+		FROM todo_comments tc
+		INNER JOIN members m ON tc.member_id = m.id
+		WHERE tc.todo_id = #{todoId}
+		  AND tc.deleted_flg = FALSE
+		ORDER BY tc.created_at ASC, tc.id ASC
+	</select>
+
+	<insert id="insertComment">
+		INSERT INTO todo_comments (
+			todo_id,
+			member_id,
+			comment_text,
+			created_by,
+			updated_by
+		) VALUES (
+			#{todoId},
+			#{memberId},
+			#{commentText},
+			#{createdBy},
+			#{createdBy}
+		)
+	</insert>
+
+	<select id="findHistories" resultType="com.forgeon.todo_app.entity.TodoHistory">
+		SELECT
+			id,
+			todo_id,
+			field_name,
+			before_value,
+			after_value,
+			changed_at,
+			changed_by
+		FROM todo_histories
+		WHERE todo_id = #{todoId}
+		ORDER BY changed_at DESC, id DESC
+	</select>
+
+	<insert id="insertHistory">
+		INSERT INTO todo_histories (
+			todo_id,
+			field_name,
+			before_value,
+			after_value,
+			changed_by
+		) VALUES (
+			#{todoId},
+			#{fieldName},
+			#{beforeValue},
+			#{afterValue},
+			#{changedBy}
+		)
+	</insert>
 	
 </mapper>

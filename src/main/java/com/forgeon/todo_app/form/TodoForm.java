@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.forgeon.todo_app.constant.Classification;
 import com.forgeon.todo_app.constant.Priority;
+import com.forgeon.todo_app.constant.TodoStatus;
 
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
@@ -39,6 +40,9 @@ public class TodoForm {
 	
 	@NotNull(message="分類を選択してください")
 	private Classification classification;
+
+	@NotNull(message="ステータスを選択してください")
+	private TodoStatus status;
 	
 	@NotBlank(message="内容は必須です")
 	@Size(max=2000, message="内容は2000文字以内で入力してください")

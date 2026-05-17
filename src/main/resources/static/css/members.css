@@ -27,9 +27,10 @@ th {
 }
 
 th:nth-child(1) { width: 110px; }
-th:nth-child(2) { width: 15%; }
-th:nth-child(3), th:nth-child(4) { width: 20%; }
-th:nth-child(5) { width: 10%; }
+th:nth-child(2) { width: 20%; }
+th:nth-child(3) { width: 28%; }
+th:nth-child(4) { width: 12%; }
+th:nth-child(5) { width: auto; }
 td:first-child { padding: 0; text-align: center; }
 td:first-child a {
     display: block;
@@ -81,7 +82,7 @@ h3 {
     gap: 10px;
 }
 
-.search-item input {
+.search-input {
     width: 130px;
     padding: 8px;
     border: 1px solid #000;
@@ -90,7 +91,7 @@ h3 {
     font-size: 0.9rem;
 }
 
-.search-item input:focus {
+.search-input:focus {
     outline: 2px solid #000;
     outline-offset: -1px;
 }

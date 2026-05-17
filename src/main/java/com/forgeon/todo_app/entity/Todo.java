@@ -1,9 +1,11 @@
 package com.forgeon.todo_app.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.forgeon.todo_app.constant.Classification;
+import com.forgeon.todo_app.constant.TodoStatus;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,6 +21,8 @@ public class Todo extends AbstractAudit {
 	private Integer priority;
 	private LocalDate dueDate;
 	private Classification classification;
+	private TodoStatus status;
+	private LocalDateTime completedAt;
 	private String description;
 	
 	

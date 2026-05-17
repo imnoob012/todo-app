@@ -16,6 +16,12 @@ public interface MemberMapper {
 
 	List<Member> findAll(MemberSearchForm memberSearchForm);
 
+	int countByUsername(@Param("username") String username,
+						@Param("excludeId") Integer excludeId);
+
+	int countByEmail(@Param("email") String email,
+					 @Param("excludeId") Integer excludeId);
+
 	void add(Member entity);
 
 	Optional<Member> detail(Integer id);

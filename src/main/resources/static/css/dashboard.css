@@ -1,0 +1,143 @@
+main {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #000;
+    padding-bottom: 12px;
+    margin-bottom: 24px;
+}
+
+.dashboard-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.outline-link {
+    display: inline-block;
+    border: 1px solid #000;
+    padding: 6px 14px;
+    color: #000;
+    text-decoration: none;
+}
+
+.outline-link:hover {
+    background: #000;
+    color: #fff;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.summary-item {
+    border: 1px solid #000;
+    padding: 14px;
+    min-height: 80px;
+    background: #fff;
+}
+
+.summary-label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+}
+
+.summary-item strong {
+    font-size: 1.8rem;
+}
+
+.summary-item.alert {
+    border-left: 6px solid #b00020;
+}
+
+.summary-item.progress {
+    border-left: 6px solid #0f6b3d;
+}
+
+.chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.chart-panel {
+    border: 1px solid #000;
+    padding: 18px;
+    background: #fff;
+}
+
+.chart-panel h3 {
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #000;
+    font-size: 1.1rem;
+}
+
+.bar-row {
+    margin-bottom: 14px;
+}
+
+.bar-label {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+
+.bar-label span {
+    overflow-wrap: anywhere;
+}
+
+.bar-track {
+    height: 12px;
+    border: 1px solid #000;
+    background: #f5f5f5;
+}
+
+.bar-fill {
+    height: 100%;
+    background: #333;
+}
+
+.empty-message {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+    .summary-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    main {
+        padding: 0 12px;
+    }
+
+    .dashboard-header,
+    .chart-grid {
+        display: block;
+    }
+
+    .outline-link {
+        margin-top: 12px;
+    }
+
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-panel {
+        margin-bottom: 16px;
+    }
+}

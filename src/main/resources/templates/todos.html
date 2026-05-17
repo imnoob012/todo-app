@@ -27,6 +27,7 @@
 			        <input type="text" class="search-input" data-field="id" placeholder="ID">
 			        <input type="text" class="search-input" data-field="title" placeholder="TODO名">
 			        <input type="text" class="search-input" data-field="assignee" placeholder="担当者">
+			        <input type="text" class="search-input" data-field="status" placeholder="ステータス">
 			        <input type="text" class="search-input" data-field="priority" placeholder="優先度">
 			        <input type="text" class="search-input" data-field="dueDate" placeholder="期限">
 			        <input type="text" class="search-input" data-field="classification" placeholder="分類">
@@ -40,6 +41,7 @@
 						<th data-sort="id">ID</th>
 						<th data-sort="title">TODO名</th>
 						<th data-sort="assignee">担当者</th>
+						<th data-sort="status">ステータス</th>
 						<th data-sort="priority">優先度</th>
 						<th data-sort="dueDate">期限</th>
 						<th data-sort="classification">分類</th>
@@ -63,6 +65,7 @@
 				            </span>
 						</td>
 						
+						<td th:text="${todo.status.label}">未着手</td>
 						<td th:text="${todo.priority.label}">高</td>
 						<td th:text="${todo.dueDate}">2026/02/11</td>
 						<td th:text="${todo.classification.label}"></td>

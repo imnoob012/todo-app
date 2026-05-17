@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.forgeon.todo_app.mapper.DashboardMapper">
+
+	<select id="summary" resultType="com.forgeon.todo_app.dto.DashboardSummaryDto">
+		SELECT
+			COUNT(*)::INTEGER AS total_count,
+			COUNT(*) FILTER (
+				WHERE due_date &lt; CURRENT_DATE
+				  AND status != 'DONE'
+			)::INTEGER AS overdue_count,
+			COUNT(*) FILTER (
+				WHERE due_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
+				  AND status != 'DONE'
+			)::INTEGER AS due_this_week_count,
+			COUNT(*) FILTER (WHERE status = 'DONE')::INTEGER AS done_count,
+			COUNT(*) FILTER (WHERE status = 'IN_PROGRESS')::INTEGER AS in_progress_count,
+			CASE
+				WHEN COUNT(*) = 0 THEN 0
+				ELSE ROUND((COUNT(*) FILTER (WHERE status = 'DONE')) * 100.0 / COUNT(*), 1)
+			END AS progress_rate
+		FROM todos
+		WHERE deleted_flg = FALSE
+	</select>
+
+	<select id="countByStatus" resultType="com.forgeon.todo_app.dto.DashboardCountDto">
+		SELECT status AS label, COUNT(*)::INTEGER AS count
+		FROM todos
+		WHERE deleted_flg = FALSE
+		GROUP BY status
+		ORDER BY
+			CASE status
+				WHEN 'TODO' THEN 1
+				WHEN 'IN_PROGRESS' THEN 2
+				WHEN 'DONE' THEN 3
+				ELSE 9
+			END
+	</select>
+
+	<select id="countByPriority" resultType="com.forgeon.todo_app.dto.DashboardCountDto">
+		SELECT CAST(priority AS VARCHAR) AS label, COUNT(*)::INTEGER AS count
+		FROM todos
+		WHERE deleted_flg = FALSE
+		GROUP BY priority
+		ORDER BY priority
+	</select>
+
+	<select id="countByClassification" resultType="com.forgeon.todo_app.dto.DashboardCountDto">
+		SELECT classification AS label, COUNT(*)::INTEGER AS count
+		FROM todos
+		WHERE deleted_flg = FALSE
+		GROUP BY classification
+		ORDER BY classification
+	</select>
+
+	<select id="countByAssignee" resultType="com.forgeon.todo_app.dto.DashboardCountDto">
+		SELECT COALESCE(m.username, '未担当') AS label, COUNT(DISTINCT t.id)::INTEGER AS count
+		FROM todos t
+		LEFT JOIN todo_assignments ta
+			ON t.id = ta.todo_id
+			AND ta.deleted_flg = FALSE
+		LEFT JOIN members m
+			ON ta.member_id = m.id
+			AND m.deleted_flg = FALSE
+		WHERE t.deleted_flg = FALSE
+		GROUP BY COALESCE(m.username, '未担当')
+		ORDER BY count DESC, label ASC
+	</select>
+</mapper>

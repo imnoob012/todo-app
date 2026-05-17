@@ -15,6 +15,7 @@
 		
         <nav>
             <span sec:authentication="name">ログインユーザー</span> さん
+            <a th:href="@{/dashboard}">ダッシュボード</a>
             <a th:href="@{/members}">メンバー一覧</a>
             <a th:href="@{/todos}">TODO一覧</a>
         </nav>

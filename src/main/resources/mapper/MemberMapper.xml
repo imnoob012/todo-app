@@ -14,7 +14,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	
 	<select id="findAll" resultType="com.forgeon.todo_app.entity.Member">
 		
-		SELECT id, username, email, password, role, remarks 
+		SELECT id, username, email, role, remarks
 		
 		FROM members m
 		
@@ -31,10 +31,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			
 			<if test="email != null and email != ''">
 				AND email LIKE CONCAT('%', #{email}, '%')
-			</if>
-			
-			<if test="password != null and password != ''">
-				AND password LIKE CONCAT('%', #{password}, '%')
 			</if>
 			
 			<if test="role != null and role != ''">
@@ -54,7 +50,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	    <choose>
 	    	<when test="sort == 'username'">m.username</when>
 	    	<when test="sort == 'email'">m.email</when>
-	        <when test="sort == 'password'">m.password</when>
 	        <when test="sort == 'role'">m.role</when>
 	    	<when test="sort == 'remarks'">m.remarks</when>
 	        <otherwise>m.id</otherwise>
@@ -64,6 +59,26 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			<otherwise>ASC</otherwise>
 		</choose>
 		
+	</select>
+
+	<select id="countByUsername" resultType="int">
+		SELECT COUNT(*)
+		FROM members
+		WHERE deleted_flg = FALSE
+		  AND username = #{username}
+		<if test="excludeId != null">
+		  AND id != #{excludeId}
+		</if>
+	</select>
+
+	<select id="countByEmail" resultType="int">
+		SELECT COUNT(*)
+		FROM members
+		WHERE deleted_flg = FALSE
+		  AND email = #{email}
+		<if test="excludeId != null">
+		  AND id != #{excludeId}
+		</if>
 	</select>
 	
 	<insert id="add" parameterType="com.forgeon.todo_app.entity.Member">

@@ -24,6 +24,7 @@
 - [ロール・権限体系](#-ロール権限体系)
 - [画面遷移図](#-画面遷移図)
 - [セットアップ手順](#-セットアップ手順)
+- [Docker Composeでの起動](#-docker-composeでの起動)
 - [ディレクトリ構成](#-ディレクトリ構成)
 - [工夫した点・アピールポイント](#-工夫した点アピールポイント)
 
@@ -50,11 +51,13 @@ Spring Security による認証・認可を実装し、3段階のロール（管
 - Spring Security によるフォームベース認証（BCrypt パスワードハッシュ）
 - 3段階のロールベースアクセス制御（ADMIN / TODO_ADMIN / MEMBER）
 - TODO 単位の編集権限制御（`@PreAuthorize` + カスタム権限判定）
+- メンバー登録・更新・削除は ADMIN のみに制限
+- API レスポンスからパスワードハッシュを除外
 
 ### 👥 メンバー管理（CRUD）
 - メンバー一覧表示（検索・ソート対応）
 - メンバー登録 / 詳細表示 / 編集 / 論理削除
-- ロールに応じた表示制御（パスワードハッシュの表示/非表示など）
+- username / email の重複防止
 - 自身のアカウント削除時の自動ログアウト処理
 
 ### ✅ TODO管理（CRUD）
@@ -62,12 +65,17 @@ Spring Security による認証・認可を実装し、3段階のロール（管
 - TODO 登録 / 詳細表示 / 編集 / 論理削除
 - 複数担当者のアサイン（チェックボックスによる多対多関連）
 - 優先度（高/中/低）・分類（機能開発/バグ修正/リファクタ/テスト/ドキュメント/その他）管理
+- ステータス（未着手/進行中/完了）と完了日時の管理
+- TODO ごとのコメント追加
+- TODO の変更履歴記録
 
 ### 🔍 横断機能
 - カラムごとの部分一致検索フィルター
 - テーブルヘッダークリックによるソート（昇順/降順切り替え）
 - Bean Validation によるサーバーサイドバリデーション
 - 共通ヘッダー / フッター（Thymeleaf フラグメント）
+- 期限切れ、今週期限、担当者別件数などを確認できるダッシュボード
+- Docker Compose による PostgreSQL 込み起動
 
 ---
 
@@ -100,8 +108,9 @@ MVC アーキテクチャに基づく 4 層レイヤー構成を採用してい�
 ┌──────────────────────▼──────────────────────────────┐
 │  Presentation Layer                                  │
 │  ├─ AuthViewController   (ログイン・メニュー)        │
-│  ├─ MemberViewController (メンバーCRUD)              │
-│  └─ TodoViewController   (TODO CRUD)                 │
+│  ├─ DashboardViewController(集計画面)                │
+│  ├─ MemberViewController   (メンバーCRUD)            │
+│  └─ TodoViewController     (TODO CRUD)               │
 ├──────────────────────────────────────────────────────┤
 │  Security Layer                                      │
 │  ├─ SecurityConfig        (認証・認可設定)            │
@@ -110,12 +119,14 @@ MVC アーキテクチャに基づく 4 層レイヤー構成を採用してい�
 │  └─ UserDetailsServiceImpl(認証ユーザー取得)          │
 ├──────────────────────────────────────────────────────┤
 │  Business Layer                                      │
+│  ├─ DashboardService      (集計ロジック)              │
 │  ├─ MemberService         (メンバー業務ロジック)      │
 │  └─ TodoService           (TODO業務ロジック)          │
 ├──────────────────────────────────────────────────────┤
 │  Data Access Layer                                   │
-│  ├─ MemberMapper (.java + .xml)                      │
-│  └─ TodoMapper   (.java + .xml)                      │
+│  ├─ DashboardMapper (.java + .xml)                   │
+│  ├─ MemberMapper    (.java + .xml)                   │
+│  └─ TodoMapper      (.java + .xml)                   │
 ├──────────────────────────────────────────────────────┤
 │  Database                                            │
 │  └─ PostgreSQL (Flyway による自動マイグレーション)     │
@@ -126,24 +137,25 @@ MVC アーキテクチャに基づく 4 層レイヤー構成を採用してい�
 
 ## 🖥 画面一覧
 
-全14画面で構成されています。
+全15画面で構成されています。
 
 | # | 画面名 | URL | 説明 |
 |---|---|---|---|
 | 1 | ログイン | `/login` | ユーザー名・パスワードによるフォーム認証 |
 | 2 | メニュー | `/menu` | メンバー一覧・TODO一覧へのナビゲーション |
-| 3 | メンバー一覧 | `/members` | 全メンバーのリスト表示（検索・ソート対応） |
-| 4 | メンバー登録 | `/members/add` | 新規メンバーの登録フォーム |
-| 5 | メンバー詳細 | `/members/{id}` | メンバーの詳細情報表示 |
-| 6 | メンバー編集 | `/members/edit/{id}` | メンバー情報の更新フォーム |
-| 7 | メンバー削除確認 | `/members/delete/{id}` | 削除前の確認画面 |
-| 8 | メンバー削除完了 | — | 削除成功メッセージ |
-| 9 | TODO一覧 | `/todos` | 全TODOのリスト表示（検索・ソート対応） |
-| 10 | TODO登録 | `/todos/add` | 新規TODOの登録フォーム |
-| 11 | TODO詳細 | `/todos/{id}` | TODOの詳細情報表示 |
-| 12 | TODO編集 | `/todos/edit/{id}` | TODO情報の更新フォーム |
-| 13 | TODO削除確認 | `/todos/delete/{id}` | 削除前の確認画面 |
-| 14 | TODO削除完了 | — | 削除成功メッセージ |
+| 3 | ダッシュボード | `/dashboard` | TODO の件数・期限・進捗を集計表示 |
+| 4 | メンバー一覧 | `/members` | 全メンバーのリスト表示（検索・ソート対応） |
+| 5 | メンバー登録 | `/members/add` | 新規メンバーの登録フォーム |
+| 6 | メンバー詳細 | `/members/{id}` | メンバーの詳細情報表示 |
+| 7 | メンバー編集 | `/members/edit/{id}` | メンバー情報の更新フォーム |
+| 8 | メンバー削除確認 | `/members/delete/{id}` | 削除前の確認画面 |
+| 9 | メンバー削除完了 | — | 削除成功メッセージ |
+| 10 | TODO一覧 | `/todos` | 全TODOのリスト表示（検索・ソート対応） |
+| 11 | TODO登録 | `/todos/add` | 新規TODOの登録フォーム |
+| 12 | TODO詳細 | `/todos/{id}` | TODOの詳細・コメント・変更履歴表示 |
+| 13 | TODO編集 | `/todos/edit/{id}` | TODO情報の更新フォーム |
+| 14 | TODO削除確認 | `/todos/delete/{id}` | 削除前の確認画面 |
+| 15 | TODO削除完了 | — | 削除成功メッセージ |
 
 ---
 
@@ -176,6 +188,8 @@ erDiagram
         varchar priority
         date due_date
         varchar classification
+        varchar status
+        timestamp completed_at
         text description
         boolean deleted_flg
         timestamp deleted_at
@@ -198,6 +212,32 @@ erDiagram
         timestamp updated_at
         varchar updated_by
     }
+
+    todos ||--o{ todo_comments : "コメント"
+    todos ||--o{ todo_histories : "変更履歴"
+    members ||--o{ todo_comments : "投稿"
+
+    todo_comments {
+        bigint id PK
+        bigint todo_id FK
+        bigint member_id FK
+        varchar comment_text
+        boolean deleted_flg
+        timestamp created_at
+        varchar created_by
+        timestamp updated_at
+        varchar updated_by
+    }
+
+    todo_histories {
+        bigint id PK
+        bigint todo_id FK
+        varchar field_name
+        varchar before_value
+        varchar after_value
+        timestamp changed_at
+        varchar changed_by
+    }
 ```
 
 - 全テーブルに **論理削除** カラム（`deleted_flg`, `deleted_at`, `deleted_by`）を実装
@@ -213,8 +253,8 @@ erDiagram
 | ロール | メンバー編集 | メンバー削除 | TODO閲覧 | TODO編集/削除 |
 |---|---|---|---|---|
 | **ADMIN**（管理者） | ◯（全メンバー） | ◯（全メンバー） | ◯ | ◯（全TODO） |
-| **TODO_ADMIN**（TODO管理者） | ◯（自分のみ） | ◯（自分のみ） | ◯ | ◯（全TODO） |
-| **MEMBER**（メンバー） | ◯（自分のみ） | ◯（自分のみ） | ◯ | ◯（自分が担当のTODOのみ） |
+| **TODO_ADMIN**（TODO管理者） | × | × | ◯ | ◯（全TODO） |
+| **MEMBER**（メンバー） | × | × | ◯ | ◯（自分が担当のTODOのみ） |
 
 > **権限判定ロジック**: `TodoSecurity.canEdit()` メソッドにて実装。ADMIN / TODO_ADMIN ロールは全TODOを編集可能。MEMBER ロールは自分がアサインされている TODO のみ編集・削除が可能。
 
@@ -227,6 +267,7 @@ flowchart TD
     A[ログイン画面] -->|認証成功| B[メニュー画面]
     B --> C[メンバー一覧]
     B --> D[TODO一覧]
+    B --> O[ダッシュボード]
 
     C --> E[メンバー詳細]
     C --> F[メンバー登録]
@@ -301,6 +342,26 @@ spring.datasource.password=your-password
 
 ---
 
+## 🐳 Docker Composeでの起動
+
+Java や PostgreSQL をローカルに直接入れず、Docker だけで起動できます。
+
+```bash
+docker compose up --build
+```
+
+起動後、ブラウザで http://localhost:8080/login にアクセスしてください。
+
+サンプルユーザーのパスワードは全員 `password` です。
+
+停止する場合:
+
+```bash
+docker compose down
+```
+
+---
+
 ## 📁 ディレクトリ構成
 
 ```
@@ -311,24 +372,32 @@ todo-app/
 │   │   ├── constant/
 │   │   │   ├── Classification.java           # TODO分類 enum
 │   │   │   ├── Priority.java                 # 優先度 enum
-│   │   │   └── Role.java                     # 権限 enum
+│   │   │   ├── Role.java                     # 権限 enum
+│   │   │   └── TodoStatus.java               # TODOステータス enum
 │   │   ├── controller/view/
 │   │   │   ├── AuthViewController.java       # 認証画面コントローラー
+│   │   │   ├── DashboardViewController.java  # ダッシュボード画面コントローラー
 │   │   │   ├── MemberViewController.java     # メンバー画面コントローラー
 │   │   │   └── TodoViewController.java       # TODO画面コントローラー
 │   │   ├── dto/
+│   │   │   ├── DashboardDto.java             # ダッシュボード表示DTO
 │   │   │   ├── MemberResponseDto.java        # メンバーレスポンスDTO
+│   │   │   ├── TodoCommentResponseDto.java   # コメントDTO
+│   │   │   ├── TodoHistoryResponseDto.java   # 変更履歴DTO
 │   │   │   └── TodoResponseDto.java          # TODOレスポンスDTO
 │   │   ├── entity/
 │   │   │   ├── AbstractAudit.java            # 監査情報基底クラス
 │   │   │   ├── Member.java                   # メンバーエンティティ
-│   │   │   └── Todo.java                     # TODOエンティティ
+│   │   │   ├── Todo.java                     # TODOエンティティ
+│   │   │   ├── TodoComment.java              # コメントエンティティ
+│   │   │   └── TodoHistory.java              # 変更履歴エンティティ
 │   │   ├── form/
 │   │   │   ├── MemberForm.java               # メンバー入力フォーム
 │   │   │   ├── MemberSearchForm.java         # メンバー検索フォーム
 │   │   │   ├── TodoForm.java                 # TODO入力フォーム
 │   │   │   └── TodoSearchForm.java           # TODO検索フォーム
 │   │   ├── mapper/
+│   │   │   ├── DashboardMapper.java          # ダッシュボード集計Mapper
 │   │   │   ├── MemberMapper.java             # メンバーMapperインターフェース
 │   │   │   └── TodoMapper.java               # TODOMapperインターフェース
 │   │   ├── security/
@@ -336,6 +405,7 @@ todo-app/
 │   │   │   ├── SecurityConfig.java           # セキュリティ設定
 │   │   │   └── TodoSecurity.java             # TODO編集権限判定
 │   │   └── service/
+│   │       ├── DashboardService.java         # ダッシュボードサービス
 │   │       ├── MemberService.java            # メンバーサービス
 │   │       ├── TodoService.java              # TODOサービス
 │   │       └── UserDetailsServiceImpl.java   # 認証サービス
@@ -343,8 +413,10 @@ todo-app/
 │       ├── application.properties            # アプリケーション設定
 │       ├── db/migration/
 │       │   ├── V1.0.0__create_tables.sql     # テーブル作成DDL
+│       │   ├── V1.1.0__add_status_comments_history_and_constraints.sql
 │       │   └── R__insert_sample_data.sql     # サンプルデータ（繰返し実行）
 │       ├── mapper/
+│       │   ├── DashboardMapper.xml           # ダッシュボードSQL定義
 │       │   ├── MemberMapper.xml              # メンバーSQL定義
 │       │   └── TodoMapper.xml                # TODO SQL定義
 │       ├── static/
@@ -353,6 +425,8 @@ todo-app/
 │       └── templates/                        # Thymeleaf テンプレート（全14画面）
 ├── docs/                                     # 設計ドキュメント
 ├── build.gradle                              # ビルド設定
+├── Dockerfile                                # アプリ用コンテナ
+├── docker-compose.yml                        # アプリ + PostgreSQL 起動設定
 └── settings.gradle
 ```
 
@@ -364,7 +438,8 @@ todo-app/
 - Spring Security を活用した **3段階のロールベースアクセス制御**
 - `@PreAuthorize` と カスタム `TodoSecurity` クラスによる **TODO単位のきめ細かな権限制御**
 - パスワードの **BCrypt ハッシュ化** による安全な保存
-- ロールに応じたパスワード表示の出し分け（ADMIN のみハッシュ値表示）
+- API レスポンスからパスワードハッシュを除外
+- JavaScript の DOM 描画を `textContent` ベースにして XSS を抑止
 
 ### 2. データ整合性
 - **論理削除** の採用によりデータの追跡可能性を確保

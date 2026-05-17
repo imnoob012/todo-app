@@ -11,7 +11,6 @@ public class MemberResponseDto {
 	private Integer id;
 	private String username;
 	private String email;
-	private String password;
 	private Role role;
 	private String remarks;
 }
