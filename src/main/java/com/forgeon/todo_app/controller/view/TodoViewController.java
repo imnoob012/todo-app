@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.forgeon.todo_app.dto.MemberResponseDto;
 import com.forgeon.todo_app.dto.TodoResponseDto;
+import com.forgeon.todo_app.constant.TodoStatus;
 import com.forgeon.todo_app.entity.Member;
 import com.forgeon.todo_app.entity.Todo;
 import com.forgeon.todo_app.form.MemberSearchForm;
@@ -54,7 +55,10 @@ public class TodoViewController {
 	@GetMapping("/todos/add")
 	String add(Model model, TodoForm todoForm) {
 		
-		model.addAttribute("todo", todoForm);
+		if (todoForm.getStatus() == null) {
+			todoForm.setStatus(TodoStatus.TODO);
+		}
+		model.addAttribute("todoForm", todoForm);
 		model.addAttribute("members", memberService.findAll(new MemberSearchForm()));
 		
 		return "todo-form";
@@ -79,7 +83,18 @@ public class TodoViewController {
 	@GetMapping("/todos/{id}")
 	String detail(@PathVariable("id") Integer id, Model model) {
 		model.addAttribute("todo", todoService.detail(id));
+		model.addAttribute("comments", todoService.findComments(id));
+		model.addAttribute("histories", todoService.findHistories(id));
 		return "todo-detail";
+	}
+
+	@PostMapping("/todos/{id}/comments")
+	String addComment(@PathVariable("id") Integer id,
+					  @RequestParam("commentText") String commentText,
+					  @AuthenticationPrincipal CustomUserDetails currentUser,
+					  Model model) {
+		todoService.addComment(id, commentText, currentUser);
+		return "redirect:/todos/" + id;
 	}
 	
 	@GetMapping("/todos/edit/{id}")
@@ -103,6 +118,7 @@ public class TodoViewController {
 												dto.getPriority(),
 												dto.getDueDate(),
 												dto.getClassification(),
+												dto.getStatus(),
 												dto.getDescription()
 												));
 		// 担当者欄に全メンバー表示する為
@@ -135,7 +151,7 @@ public class TodoViewController {
 	@PreAuthorize("@todoSecurity.canEdit(#id, principal)")
 	String deleteConfirm(@PathVariable("id") Integer id, Model model,
 						 @AuthenticationPrincipal CustomUserDetails currentUser) {
-		model.addAttribute(id);
+		model.addAttribute("id", id);
 		return "todo-delete-confirm";
 	}
 	
@@ -155,6 +171,7 @@ public class TodoViewController {
 		entity.setPriority(form.getPriority().getId());
 		entity.setDueDate(form.getDueDate());
 		entity.setClassification(form.getClassification());
+		entity.setStatus(form.getStatus());
 		entity.setDescription(form.getDescription());
 		
 		// 監査情報（名前）

@@ -23,10 +23,6 @@
             <div class="detail-item-label">メールアドレス：</div>
             <div class="detail-item-value" th:text="${member.email}">aiueo@example.com</div>
 
-            <div class="detail-item-label">パスワード：</div>
-            <div class="detail-item-value" th:text="${member.password}" sec:authorize="hasAuthority('ADMIN')"></div>
-			<div class="detail-item-value" sec:authorize="!hasAuthority('ADMIN')">******</div>
-
             <div class="detail-item-label">権限：</div>
             <div class="detail-item-value" th:text="${member.role.label}">管理者</div>
 
@@ -35,7 +31,7 @@
 			
 			<div class="operations">
 				<a th:href="@{/todos(assigneeId=${member.id})}">TODO一覧</a>
-				<th:block th:if="${#authentication.name == member.username or #authorization.expression('hasAuthority(''ADMIN'')')}">
+				<th:block sec:authorize="hasAuthority('ADMIN')">
 					<a th:href="@{/members/edit/{id}(id=${member.id})}">編 集</a>
 					<form th:action="@{/members/delete/{id}(id=${member.id})}" method="get">
 						<input type="hidden" th:value="${member.id}">

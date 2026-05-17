@@ -3,6 +3,7 @@ package com.forgeon.todo_app.controller.view;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +40,7 @@ public class MemberViewController {
 	}
 	
 	@GetMapping("/members/add")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	String add(Model model) {
 		
 		model.addAttribute("memberForm", new MemberForm());
@@ -47,10 +49,12 @@ public class MemberViewController {
 	}
 	
 	@PostMapping("/members/add")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	String add(@Validated(MemberForm.Add.class) MemberForm form,
 			   BindingResult result, Model model, 
 			   @AuthenticationPrincipal UserDetails userDetails) {
 		
+		rejectDuplicateMember(form, null, result);
 		if (result.hasErrors()) {
 			return "member-form";
 		}
@@ -68,6 +72,7 @@ public class MemberViewController {
 	}
 	
 	@GetMapping("/members/edit/{id}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	String edit(@PathVariable("id") Integer id, Model model) {
 		MemberResponseDto dto = memberService.detail(id);
 		
@@ -85,9 +90,11 @@ public class MemberViewController {
 	}
 	
 	@PostMapping("/members/update/{id}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	String update(@Validated(MemberForm.Update.class) MemberForm form, BindingResult result,
 			      @PathVariable("id") Integer id, Model model,
 			      @AuthenticationPrincipal UserDetails userDetails) {
+		rejectDuplicateMember(form, id, result);
 		if (result.hasErrors()) {
 			model.addAttribute("id", id);
 			return "member-edit";
@@ -102,12 +109,14 @@ public class MemberViewController {
 	}
 	
 	@GetMapping("/members/delete/{id}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	String deleteConfirm(@PathVariable("id") Integer id, Model model) {
-		model.addAttribute(id);
+		model.addAttribute("id", id);
 		return "member-delete-confirm";
 	}
 	
 	@PostMapping("/members/delete/{id}")
+	@PreAuthorize("hasAuthority('ADMIN')")
 	String deleteExecute(@PathVariable("id") Integer id,
 						 @AuthenticationPrincipal CustomUserDetails currentUser,
 						 HttpServletRequest request) {
@@ -123,6 +132,15 @@ public class MemberViewController {
 			
 		}
 		return "member-delete-success";
+	}
+
+	private void rejectDuplicateMember(MemberForm form, Integer memberId, BindingResult result) {
+		if (memberService.existsByUsername(form.getUsername(), memberId)) {
+			result.rejectValue("username", "duplicate", "ユーザー名は既に使用されています");
+		}
+		if (memberService.existsByEmail(form.getEmail(), memberId)) {
+			result.rejectValue("email", "duplicate", "メールアドレスは既に使用されています");
+		}
 	}
 	
 	// 変換メソッド(FORM→ENTITY)

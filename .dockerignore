@@ -1,0 +1,6 @@
+.git
+.gradle
+.jdk
+build
+docs/*.png
+docs/*.pdf

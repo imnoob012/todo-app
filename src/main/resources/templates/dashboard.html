@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>ダッシュボード</title>
+		<link rel="stylesheet" th:href="@{/css/dashboard.css}">
+	</head>
+	<body>
+		<div th:replace="~{common/fragments :: header-fragment}"></div>
+
+		<main>
+			<div class="dashboard-header">
+				<h2>ダッシュボード</h2>
+				<a th:href="@{/todos}" class="outline-link">TODO一覧</a>
+			</div>
+
+			<section class="summary-grid">
+				<div class="summary-item">
+					<span class="summary-label">総TODO数</span>
+					<strong th:text="${dashboard.summary.totalCount}">0</strong>
+				</div>
+				<div class="summary-item alert">
+					<span class="summary-label">期限切れ</span>
+					<strong th:text="${dashboard.summary.overdueCount}">0</strong>
+				</div>
+				<div class="summary-item">
+					<span class="summary-label">今週期限</span>
+					<strong th:text="${dashboard.summary.dueThisWeekCount}">0</strong>
+				</div>
+				<div class="summary-item">
+					<span class="summary-label">進行中</span>
+					<strong th:text="${dashboard.summary.inProgressCount}">0</strong>
+				</div>
+				<div class="summary-item">
+					<span class="summary-label">完了</span>
+					<strong th:text="${dashboard.summary.doneCount}">0</strong>
+				</div>
+				<div class="summary-item progress">
+					<span class="summary-label">完了率</span>
+					<strong th:text="${dashboard.summary.progressRate + '%'}">0%</strong>
+				</div>
+			</section>
+
+			<section class="chart-grid">
+				<div class="chart-panel">
+					<h3>ステータス別</h3>
+					<div class="empty-message" th:if="${#lists.isEmpty(dashboard.statusCounts)}">データがありません。</div>
+					<div class="bar-row" th:each="item : ${dashboard.statusCounts}">
+						<div class="bar-label">
+							<span th:text="${item.label}">label</span>
+							<strong th:text="${item.count}">0</strong>
+						</div>
+						<div class="bar-track">
+							<div class="bar-fill" th:style="${'width:' + (dashboard.summary.totalCount == 0 ? 0 : item.count * 100 / dashboard.summary.totalCount) + '%'}"></div>
+						</div>
+					</div>
+				</div>
+				<div class="chart-panel">
+					<h3>担当者別</h3>
+					<div class="empty-message" th:if="${#lists.isEmpty(dashboard.assigneeCounts)}">データがありません。</div>
+					<div class="bar-row" th:each="item : ${dashboard.assigneeCounts}">
+						<div class="bar-label">
+							<span th:text="${item.label}">label</span>
+							<strong th:text="${item.count}">0</strong>
+						</div>
+						<div class="bar-track">
+							<div class="bar-fill" th:style="${'width:' + (dashboard.summary.totalCount == 0 ? 0 : item.count * 100 / dashboard.summary.totalCount) + '%'}"></div>
+						</div>
+					</div>
+				</div>
+				<div class="chart-panel">
+					<h3>優先度別</h3>
+					<div class="empty-message" th:if="${#lists.isEmpty(dashboard.priorityCounts)}">データがありません。</div>
+					<div class="bar-row" th:each="item : ${dashboard.priorityCounts}">
+						<div class="bar-label">
+							<span th:text="${item.label}">label</span>
+							<strong th:text="${item.count}">0</strong>
+						</div>
+						<div class="bar-track">
+							<div class="bar-fill" th:style="${'width:' + (dashboard.summary.totalCount == 0 ? 0 : item.count * 100 / dashboard.summary.totalCount) + '%'}"></div>
+						</div>
+					</div>
+				</div>
+				<div class="chart-panel">
+					<h3>分類別</h3>
+					<div class="empty-message" th:if="${#lists.isEmpty(dashboard.classificationCounts)}">データがありません。</div>
+					<div class="bar-row" th:each="item : ${dashboard.classificationCounts}">
+						<div class="bar-label">
+							<span th:text="${item.label}">label</span>
+							<strong th:text="${item.count}">0</strong>
+						</div>
+						<div class="bar-track">
+							<div class="bar-fill" th:style="${'width:' + (dashboard.summary.totalCount == 0 ? 0 : item.count * 100 / dashboard.summary.totalCount) + '%'}"></div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<div th:replace="~{common/fragments :: footer-fragment}"></div>
+	</body>
+</html>

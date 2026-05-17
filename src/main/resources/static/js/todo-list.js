@@ -1,12 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-
     const tbody = document.getElementById('todo-table-body');
     const searchInputs = document.querySelectorAll('.search-input');
 
     let currentSort = null;
     let currentDirection = 'asc';
 
-    // sort
     document.querySelectorAll('th[data-sort]').forEach(th => {
         th.style.cursor = 'pointer';
         th.addEventListener('click', () => {
@@ -22,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 検索（Enter押下）
     searchInputs.forEach(input => {
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
@@ -32,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // API呼び出し
     function fetchTodos() {
         const params = new URLSearchParams();
         searchInputs.forEach(input => {
@@ -40,49 +36,62 @@ document.addEventListener('DOMContentLoaded', () => {
             if (input.dataset.field && value) {
                 params.set(input.dataset.field, value);
             }
-    });
+        });
 
-    // メンバー詳細からの遷移時、assigneeIdを引き継ぐ
-    const urlParams = new URLSearchParams(window.location.search);
-    const assigneeId = urlParams.get('assigneeId');
-    if (assigneeId) {
-        params.set('assigneeId', assigneeId);
+        const urlParams = new URLSearchParams(window.location.search);
+        const assigneeId = urlParams.get('assigneeId');
+        if (assigneeId) {
+            params.set('assigneeId', assigneeId);
+        }
+
+        if (currentSort) {
+            params.set('sort', currentSort);
+            params.set('direction', currentDirection);
+        }
+
+        fetch('/api/todos?' + params.toString())
+            .then(res => res.json())
+            .then(todos => renderTable(todos))
+            .catch(err => console.error('検索エラー:', err));
     }
 
-    if (currentSort) {
-        params.set('sort', currentSort);
-        params.set('direction', currentDirection);
-    }
-
-    fetch('/api/todos?' + params.toString())
-        .then(res => res.json())
-        .then(todos => renderTable(todos))
-        .catch(err => console.error('検索エラー:', err));
-    }
-
-    // テーブル描画
     function renderTable(todos) {
-        tbody.innerHTML = '';
+        tbody.replaceChildren();
         todos.forEach(todo => {
-            const assigneeText = (!todo.assignees || todo.assignees.length === 0)
-                ? '未定'
-                : todo.assignees.map(a => a.username).join(', ');
-
             const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><a href="/todos/${todo.id}">${String(todo.id).padStart(10, '0')}</a></td>
-                <td>${todo.title || ''}</td>
-                <td>${assigneeText}</td>
-                <td>${todo.priority ? todo.priority.label : ''}</td>
-                <td>${todo.dueDate || ''}</td>
-                <td>${todo.classification ? todo.classification.label : ''}</td>
-                <td>${todo.description || ''}</td>
-            `;
+
+            const idCell = document.createElement('td');
+            const detailLink = document.createElement('a');
+            detailLink.href = '/todos/' + encodeURIComponent(todo.id);
+            detailLink.textContent = String(todo.id ?? '').padStart(10, '0');
+            idCell.appendChild(detailLink);
+            row.appendChild(idCell);
+
+            appendTextCell(row, todo.title || '');
+            appendTextCell(row, assigneeText(todo.assignees));
+            appendTextCell(row, todo.status ? todo.status.label : '');
+            appendTextCell(row, todo.priority ? todo.priority.label : '');
+            appendTextCell(row, todo.dueDate || '');
+            appendTextCell(row, todo.classification ? todo.classification.label : '');
+            appendTextCell(row, todo.description || '');
+
             tbody.appendChild(row);
         });
     }
 
-    // ソートマーク
+    function appendTextCell(row, value) {
+        const cell = document.createElement('td');
+        cell.textContent = value;
+        row.appendChild(cell);
+    }
+
+    function assigneeText(assignees) {
+        if (!assignees || assignees.length === 0) {
+            return '未定';
+        }
+        return assignees.map(assignee => assignee.username).join(', ');
+    }
+
     function updateSortMarks() {
         document.querySelectorAll('th[data-sort]').forEach(th => {
             const mark = th.querySelector('.sort-mark');

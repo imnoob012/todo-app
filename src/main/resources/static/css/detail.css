@@ -85,6 +85,84 @@ h2 {
     display: inline-block;
 }
 
+.detail-section {
+    grid-column: 1 / -1;
+    border-top: 1px solid #000;
+    padding-top: 24px;
+}
+
+.detail-section h3 {
+    margin: 0 0 16px;
+    font-size: 1.1rem;
+}
+
+.comment-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.comment-form textarea {
+    min-height: 76px;
+    padding: 10px;
+    resize: vertical;
+}
+
+.comment-form button {
+    border: 1px solid #333;
+    background: #fff;
+    padding: 0 18px;
+    cursor: pointer;
+}
+
+.comment-form button:hover {
+    background: #333;
+    color: #fff;
+}
+
+.comment-item {
+    border: 1px solid #ddd;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.comment-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.comment-body {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.history-table th,
+.history-table td {
+    border: 1px solid #333;
+    padding: 8px;
+    font-size: 0.85rem;
+    word-break: break-word;
+}
+
+.history-table th {
+    background: #eee;
+}
+
+.empty-message {
+    color: #666;
+}
+
 @media (max-width: 600px) {
     main {
         margin: 0;
@@ -109,6 +187,10 @@ h2 {
 	.operations {
         flex-direction: column;
         gap: 15px;
+    }
+
+    .comment-form {
+        grid-template-columns: 1fr;
     }
     
     .operations a,

@@ -43,8 +43,55 @@
             <div class="detail-item-label">分類：</div>
             <div class="detail-item-value" th:text="${todo.classification.label}"></div>
 
+            <div class="detail-item-label">ステータス：</div>
+            <div class="detail-item-value" th:text="${todo.status.label}"></div>
+
+            <div class="detail-item-label">完了日時：</div>
+            <div class="detail-item-value" th:text="${todo.completedAt != null ? #temporals.format(todo.completedAt, 'yyyy-MM-dd HH:mm') : '-'}"></div>
+
             <div class="detail-item-label">内容：</div>
             <div class="detail-item-value" th:text="${todo.description}"></div>
+
+			<section class="detail-section">
+				<h3>コメント</h3>
+				<form class="comment-form" th:action="@{/todos/{id}/comments(id=${todo.id})}" method="post">
+					<textarea name="commentText" rows="3" maxlength="2000" required></textarea>
+					<button type="submit">コメント追加</button>
+				</form>
+				<div class="empty-message" th:if="${#lists.isEmpty(comments)}">コメントはまだありません。</div>
+				<div class="comment-item" th:each="comment : ${comments}">
+					<div class="comment-meta">
+						<span th:text="${comment.username}">user</span>
+						<span th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">2026-01-01 10:00</span>
+					</div>
+					<div class="comment-body" th:text="${comment.commentText}">comment</div>
+				</div>
+			</section>
+
+			<section class="detail-section">
+				<h3>変更履歴</h3>
+				<div class="empty-message" th:if="${#lists.isEmpty(histories)}">変更履歴はまだありません。</div>
+				<table class="history-table" th:if="${!#lists.isEmpty(histories)}">
+					<thead>
+						<tr>
+							<th>日時</th>
+							<th>項目</th>
+							<th>変更前</th>
+							<th>変更後</th>
+							<th>変更者</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="history : ${histories}">
+							<td th:text="${#temporals.format(history.changedAt, 'yyyy-MM-dd HH:mm')}">2026-01-01 10:00</td>
+							<td th:text="${history.fieldName}">ステータス</td>
+							<td th:text="${history.beforeValue ?: '-'}">未着手</td>
+							<td th:text="${history.afterValue ?: '-'}">完了</td>
+							<td th:text="${history.changedBy}">user</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
 			
 			<div class="operations">
 				<th:block th:if="${@todoSecurity.canEdit(todo.id, #authentication.principal)}">
