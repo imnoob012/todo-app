@@ -1,6 +1,14 @@
 HELP.md
 .gradle
 build/
+/.jdk/
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
+backend/tmp/
+*.exe
+*.test
+*.out
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
