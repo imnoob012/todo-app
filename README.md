@@ -258,6 +258,34 @@ flowchart TD
 
 ## 🚀 セットアップ手順
 
+### Docker Composeで起動する場合
+
+Dockerが利用できる環境では、アプリケーションとPostgreSQLをまとめて起動できます。
+
+```bash
+git clone https://github.com/imnoob012/todo-app.git
+cd todo-app
+docker compose up --build
+```
+
+起動後、ブラウザで http://localhost:8080/login にアクセスしてください。
+
+停止する場合は以下を実行します。
+
+```bash
+docker compose down
+```
+
+DBデータも含めて削除し、初期状態に戻す場合は以下を実行します。
+
+```bash
+docker compose down -v
+```
+
+---
+
+### 手動で起動する場合
+
 ### 前提条件
 
 - **Java** 21 以上
